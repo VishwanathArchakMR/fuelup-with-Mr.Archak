@@ -1,2 +1,20 @@
-# fuelup-with-Mr.Archak
-🚀 Official Website of Fuel Up with Mr. Archak — A youth-driven creator agency and motivational YouTube brand helping students break limits, build real skills, and fuel their future. Built fully using HTML, CSS, JS &amp; free AI tools.
+# Fuel Up with Mr. Archak 🌟
+
+Welcome to the official repository of **Fuel Up with Mr. Archak**, a creator-led agency and motivational platform empowering India’s youth beyond engineering degrees and college hype.
+
+## 🚀 What’s Inside?
+- Fully AI-assisted website (HTML, CSS, JS)
+- No paid tools — 100% free stack
+- Hosted via GitHub Pages
+- Embedded YouTube content
+- Responsive, clean design with future upgrades planned
+
+## 💡 Mission
+To help students escape dopamine addiction, comfort zones, and useless college lectures — and start building skills, content, and confidence.
+
+## 🌐 Live Website
+👉 [Click here to view site](https://yourusername.github.io/fuelup-with-Mr.Archak)
+
+---
+
+🧠 Fuel up. Next gen tech. Build your future.
