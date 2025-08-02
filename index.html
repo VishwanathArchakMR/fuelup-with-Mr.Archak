@@ -54,6 +54,13 @@
         </div>
     </nav>
 
+    <!-- Banner Section -->
+    <section class="banner-section">
+        <div class="banner-container">
+            <img src="banner.jpg" alt="Mr. Archak Banner" class="banner-image">
+        </div>
+    </section>
+
     <!-- Hero Section -->
     <section id="home" class="hero">
         <div class="hero-container">
@@ -77,9 +84,8 @@
                     </div>
                 </div>
                 <div class="hero-image">
-                    <div class="image-placeholder">
-                        <i class="fas fa-user-circle"></i>
-                        <p>Your Photo Here</p>
+                    <div class="profile-image-container">
+                        <img src="profile1.jpg" alt="Mr. Archak Profile" class="profile-image">
                     </div>
                 </div>
             </div>
@@ -132,15 +138,15 @@
                     
                     <div class="follow-stats">
                         <div class="stat">
-                            <span class="stat-number" data-target="5000">0</span>
+                            <span class="stat-number" id="followerCount" data-target="5000">5</span>
                             <span class="stat-label">Tribe Members</span>
                         </div>
                         <div class="stat">
-                            <span class="stat-number" data-target="50">0</span>
+                            <span class="stat-number" data-target="1">50</span>
                             <span class="stat-label">Countries</span>
                         </div>
                         <div class="stat">
-                            <span class="stat-number" data-target="100">0</span>
+                            <span class="stat-number" data-target="1">100</span>
                             <span class="stat-label">Success Stories</span>
                         </div>
                     </div>
@@ -154,9 +160,8 @@
         <div class="container">
             <div class="about-content">
                 <div class="about-image">
-                    <div class="image-placeholder">
-                        <i class="fas fa-camera"></i>
-                        <p>Profile Photo</p>
+                    <div class="profile-image-container">
+                        <img src="profile2.jpg" alt="Mr. Archak About" class="profile-image">
                     </div>
                 </div>
                 <div class="about-text">
@@ -234,21 +239,18 @@
 
     <!-- YouTube Section -->
     <section class="youtube-section">
-        <div class="container">
-            <h2 class="section-title">Latest from YouTube</h2>
-            <p class="section-subtitle">Watch my latest content exposing education myths and inspiring real growth</p>
-            
-            <div class="video-container">
-                <div class="video-placeholder">
-                    <i class="fab fa-youtube"></i>
-                    <p>YouTube Video Embed</p>
-                    <small>Replace this with your latest video iframe</small>
-                </div>
-                <!-- Replace the placeholder above with your actual YouTube embed:
-                <iframe width="100%" height="400" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" 
-                        frameborder="0" allowfullscreen></iframe>
-                -->
-            </div>
+    <div class="container">
+        <h2 class="section-title">Latest from YouTube</h2>
+        <p class="section-subtitle">Watch my latest content exposing education myths and inspiring real growth</p>
+        
+        <div class="video-container">
+            <iframe width="100%" height="400" src="https://www.youtube.com/embed/lKUvFYayfr4?si=oHuJYlTp4Ez8qCNu" 
+                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen></iframe>
+        </div>
+    </div>
+</section>
+
             
             <div class="youtube-cta">
                 <a href="https://www.youtube.com/@FuelupwithMr.Archak" target="_blank" class="cta-button primary">
@@ -327,17 +329,20 @@
             
             <div class="contact-content">
                 <div class="contact-form">
-                    <form class="form">
+                    <form class="form" id="contactForm">
                         <div class="form-group">
-                            <input type="text" placeholder="Your Name" required>
+                            <input type="text" name="name" placeholder="Your Name" required>
                         </div>
                         <div class="form-group">
-                            <input type="email" placeholder="Your Email" required>
+                            <input type="email" name="email" placeholder="Your Email" required>
                         </div>
                         <div class="form-group">
-                            <textarea placeholder="Your Message" rows="5" required></textarea>
+                            <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
                         </div>
-                        <button type="submit" class="cta-button primary">Join the Movement</button>
+                        <button type="submit" class="cta-button primary">
+                            <i class="fas fa-rocket"></i>
+                            Join the Movement
+                        </button>
                     </form>
                 </div>
                 
@@ -361,6 +366,14 @@
                         <a href="https://x.com/ArchakR59598?t=rDMNkTF2dGn2wtw6W6_3Ug&s=09" target="_blank" class="social-link twitter">
                             <i class="fab fa-x-twitter"></i>
                             <span>Twitter</span>
+                            </a>
+                            <a href="https://github.com/VishwanathArchakMR" target="_blank" class="social-link Github">
+                                <i class="fab fa-github"></i>
+                                <span>Github</span>
+                                </a>
+                                <a href="https://www.fiverr.com/s/GzQ49b7" target="_blank" class="social-link Fiverr">
+                                    <i class="fab fa-fiverr"></i>
+                                    <span>Fiverr</span>
                         </a>
                     </div>
                 </div>
@@ -392,6 +405,8 @@
                         <a href="https://www.instagram.com/fuelup_with_mr.archak?igsh=MXduZjhqb2t6OWhnZg==&utm_source=ig_contact_invite" target="_blank">Instagram</a>
                         <a href="https://www.linkedin.com/in/vishwanath-archak-m-r-936835332?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank">LinkedIn</a>
                         <a href="https://x.com/ArchakR59598?t=rDMNkTF2dGn2wtw6W6_3Ug&s=09" target="_blank">Twitter</a>
+                        <a href="https://www.fiverr.com/s/GzQ49b7" target="_blank">Fiveer</a>
+                        <a href="https://github.com/VishwanathArchakMR" target="_blank">Github</a>
                     </div>
                 </div>
             </div>
