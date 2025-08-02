@@ -3,7 +3,7 @@
 Welcome to the official repository of **Fuel Up with Mr. Archak**, a creator-led agency and motivational platform empowering India’s youth beyond engineering degrees and college hype.
 
 ## 🚀 What’s Inside?
-- Fully AI-assisted website (HTML, CSS, JS)
+- AI-assisted website (HTML, CSS, JS)
 - No paid tools — 100% free stack
 - Hosted via GitHub Pages
 - Embedded YouTube content
