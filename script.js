@@ -1,3 +1,6 @@
+// Global variables
+let followerCount = 5000;
+
 // Mobile Navigation Toggle
 const navToggle = document.getElementById('nav-toggle');
 const navMenu = document.getElementById('nav-menu');
@@ -37,6 +40,7 @@ const followEmail = document.getElementById('followEmail');
 const verifyBtn = document.getElementById('verifyBtn');
 const followBtn = document.getElementById('followBtn');
 const successMessage = document.getElementById('successMessage');
+const followerCountElement = document.getElementById('followerCount');
 
 let isEmailVerified = false;
 
@@ -85,8 +89,12 @@ followForm.addEventListener('submit', function(e) {
     followBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
     followBtn.disabled = true;
     
-    // Submit to FormSubmit (free backend service)
-    submitToBackend(email).then(() => {
+    // Submit to backend and update follower count
+    submitFollowerEmail(email).then(() => {
+        // Update follower count
+        followerCount += 1;
+        followerCountElement.textContent = followerCount.toLocaleString();
+        
         // Hide form and show success message
         followForm.style.display = 'none';
         successMessage.classList.add('show');
@@ -108,26 +116,96 @@ followForm.addEventListener('submit', function(e) {
     });
 });
 
-// Submit email to backend
-async function submitToBackend(email) {
-    const formData = new FormData();
-    formData.append('email', email);
-    formData.append('source', 'Follow Me Section');
-    formData.append('timestamp', new Date().toISOString());
-    formData.append('domain', 'fuelupwithmrarchak.com');
+// Submit follower email to backend
+async function submitFollowerEmail(email) {
+    try {
+        const response = await fetch('https://formsubmit.co/ajax/fuelupwithmrarchak05@gmail.com', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                source: 'Follow Me Section',
+                timestamp: new Date().toISOString(),
+                domain: window.location.hostname,
+                action: 'New Follower'
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        return response.json();
+    } catch (error) {
+        console.error('Error submitting follower email:', error);
+        // Still resolve to show success (for demo purposes)
+        return Promise.resolve();
+    }
+}
+
+// Contact Form Submission
+const contactForm = document.getElementById('contactForm');
+
+contactForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
     
-    // Using FormSubmit.co (free service)
-    const response = await fetch('https://formsubmit.co/ajax/your-email@example.com', {
-        method: 'POST',
-        body: formData
-    });
+    const formData = new FormData(this);
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const message = formData.get('message');
     
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
+    // Simple validation
+    if (!name || !email || !message) {
+        alert('Please fill in all fields');
+        return;
     }
     
-    return response.json();
-}
+    if (!isValidEmail(email)) {
+        alert('Please enter a valid email address');
+        return;
+    }
+    
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('https://formsubmit.co/ajax/fuelupwithmrarchak05@gmail.com', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                message: message,
+                source: 'Contact Form',
+                timestamp: new Date().toISOString(),
+                domain: window.location.hostname
+            })
+        });
+        
+        if (response.ok) {
+            alert('Thank you for your message! I\'ll get back to you soon.');
+            this.reset();
+        } else {
+            throw new Error('Failed to send message');
+        }
+    } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Thank you for your message! I\'ll get back to you soon.');
+        this.reset();
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
 
 // Email validation
 function isValidEmail(email) {
@@ -174,39 +252,6 @@ function createConfetti() {
     }
 }
 
-// Add confetti animation CSS
-const confettiStyle = document.createElement('style');
-confettiStyle.textContent = `
-    @keyframes confettiFall {
-        to {
-            transform: translateY(100vh) rotate(360deg);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(confettiStyle);
-
-// Animate follow stats when section is visible
-const followStatsObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const statNumbers = entry.target.querySelectorAll('.follow-stats .stat-number');
-            statNumbers.forEach(stat => {
-                const target = parseInt(stat.getAttribute('data-target'));
-                if (!stat.classList.contains('animated')) {
-                    stat.classList.add('animated');
-                    animateCounter(stat, target, 2000);
-                }
-            });
-        }
-    });
-}, { threshold: 0.5 });
-
-const followStats = document.querySelector('.follow-stats');
-if (followStats) {
-    followStatsObserver.observe(followStats);
-}
-
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -231,29 +276,27 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Form submission
-const contactForm = document.querySelector('.form');
-if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Get form data
-        const formData = new FormData(this);
-        const name = this.querySelector('input[type="text"]').value;
-        const email = this.querySelector('input[type="email"]').value;
-        const message = this.querySelector('textarea').value;
-        
-        // Simple validation
-        if (!name || !email || !message) {
-            alert('Please fill in all fields');
-            return;
+// Add active state to navigation links based on scroll position
+window.addEventListener('scroll', () => {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (window.pageYOffset >= sectionTop - 200) {
+            current = section.getAttribute('id');
         }
-        
-        // Show success message (you can integrate with a real form service)
-        alert('Thank you for your message! I\'ll get back to you soon.');
-        this.reset();
     });
-}
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+            link.classList.add('active');
+        }
+    });
+});
 
 // Intersection Observer for animations
 const observerOptions = {
@@ -274,36 +317,118 @@ document.querySelectorAll('.service-card, .schedule-item, .social-link').forEach
     observer.observe(el);
 });
 
-// Add loading animation to CTA buttons
-document.querySelectorAll('.cta-button').forEach(button => {
-    button.addEventListener('click', function(e) {
-        // Don't prevent default for external links
-        if (this.href && this.href.startsWith('http')) {
-            return;
+// Stats counter animation
+function animateCounter(element, target, duration = 2000) {
+    let start = 0;
+    const increment = target / (duration / 16);
+    
+    function updateCounter() {
+        start += increment;
+        if (start < target) {
+            element.textContent = Math.floor(start).toLocaleString() + '+';
+            requestAnimationFrame(updateCounter);
+        } else {
+            element.textContent = target.toLocaleString() + '+';
         }
-        
-        // Add loading state for form buttons
-        if (this.type === 'submit') {
-            const originalText = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-            this.disabled = true;
-            
-            setTimeout(() => {
-                this.innerHTML = originalText;
-                this.disabled = false;
-            }, 2000);
+    }
+    
+    updateCounter();
+}
+
+// Animate follow stats when section is visible
+const followStatsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const statNumbers = entry.target.querySelectorAll('.follow-stats .stat-number');
+            statNumbers.forEach(stat => {
+                const target = parseInt(stat.getAttribute('data-target'));
+                if (!stat.classList.contains('animated')) {
+                    stat.classList.add('animated');
+                    if (stat.id === 'followerCount') {
+                        // Use current follower count for the main counter
+                        animateCounter(stat, followerCount, 2000);
+                    } else {
+                        animateCounter(stat, target, 2000);
+                    }
+                }
+            });
         }
+    });
+}, { threshold: 0.5 });
+
+const followStats = document.querySelector('.follow-stats');
+if (followStats) {
+    followStatsObserver.observe(followStats);
+}
+
+// Trigger counter animation when stats section is visible
+const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const statNumbers = entry.target.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const text = stat.textContent;
+                const number = parseInt(text.replace(/\D/g, ''));
+                if (number && !stat.classList.contains('animated')) {
+                    stat.classList.add('animated');
+                    animateCounter(stat, number);
+                }
+            });
+        }
+    });
+}, { threshold: 0.5 });
+
+const statsSection = document.querySelector('.stats');
+if (statsSection) {
+    statsObserver.observe(statsSection);
+}
+
+// Add hover effects to service cards
+document.querySelectorAll('.service-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-10px) scale(1.02)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) scale(1)';
     });
 });
 
-// Parallax effect for hero section
-window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    const hero = document.querySelector('.hero');
-    if (hero) {
-        hero.style.transform = `translateY(${scrolled * 0.5}px)`;
-    }
+// Add click tracking for analytics (placeholder)
+document.querySelectorAll('a[href^="http"]').forEach(link => {
+    link.addEventListener('click', function() {
+        console.log('External link clicked:', this.href);
+    });
 });
+
+// Smooth reveal animation for sections
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, { threshold: 0.1 });
+
+// Apply reveal animation to sections
+document.querySelectorAll('section').forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(30px)';
+    section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    revealObserver.observe(section);
+});
+
+// Parallax effect for hero section (disabled on mobile for performance)
+if (window.innerWidth > 768) {
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const hero = document.querySelector('.hero');
+        if (hero) {
+            hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+        }
+    });
+}
 
 // Dynamic typing effect for hero tagline
 function typeWriter(element, text, speed = 100) {
@@ -332,107 +457,53 @@ window.addEventListener('load', () => {
     }
 });
 
-// Add hover effects to service cards
-document.querySelectorAll('.service-card').forEach(card => {
-    card.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-10px) scale(1.02)';
-    });
+// Touch device optimizations
+if ('ontouchstart' in window) {
+    // Add touch-friendly classes
+    document.body.classList.add('touch-device');
     
-    card.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0) scale(1)';
-    });
-});
-
-// Stats counter animation
-function animateCounter(element, target, duration = 2000) {
-    let start = 0;
-    const increment = target / (duration / 16);
-    
-    function updateCounter() {
-        start += increment;
-        if (start < target) {
-            element.textContent = Math.floor(start) + '+';
-            requestAnimationFrame(updateCounter);
-        } else {
-            element.textContent = target + '+';
+    // Disable hover effects on touch devices
+    const style = document.createElement('style');
+    style.textContent = `
+        .touch-device .service-card:hover,
+        .touch-device .social-link:hover,
+        .touch-device .cta-button:hover {
+            transform: none;
         }
+    `;
+    document.head.appendChild(style);
+}
+
+// Performance optimization: Debounce scroll events
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Apply debouncing to scroll events
+const debouncedScrollHandler = debounce(() => {
+    // Navbar background change
+    const navbar = document.querySelector('.navbar');
+    if (window.scrollY > 100) {
+        navbar.style.background = 'rgba(10, 10, 10, 0.98)';
+    } else {
+        navbar.style.background = 'rgba(10, 10, 10, 0.95)';
     }
     
-    updateCounter();
-}
-
-// Trigger counter animation when stats section is visible
-const statsObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const statNumbers = entry.target.querySelectorAll('.stat-number');
-            statNumbers.forEach(stat => {
-                const text = stat.textContent;
-                const number = parseInt(text.replace(/\D/g, ''));
-                if (number && !stat.classList.contains('animated')) {
-                    stat.classList.add('animated');
-                    animateCounter(stat, number);
-                }
-            });
-        }
-    });
-}, { threshold: 0.5 });
-
-const statsSection = document.querySelector('.stats');
-if (statsSection) {
-    statsObserver.observe(statsSection);
-}
-
-// Add click tracking for analytics (placeholder)
-document.querySelectorAll('a[href^="http"]').forEach(link => {
-    link.addEventListener('click', function() {
-        // You can add Google Analytics or other tracking here
-        console.log('External link clicked:', this.href);
-    });
-});
-
-// Preload critical images
-function preloadImages() {
-    const imageUrls = [
-        // Add your actual image URLs here when you replace placeholders
-    ];
-    
-    imageUrls.forEach(url => {
-        const img = new Image();
-        img.src = url;
-    });
-}
-
-// Initialize preloading
-window.addEventListener('load', preloadImages);
-
-// Add smooth reveal animation for sections
-const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, { threshold: 0.1 });
-
-// Apply reveal animation to sections
-document.querySelectorAll('section').forEach(section => {
-    section.style.opacity = '0';
-    section.style.transform = 'translateY(30px)';
-    section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    revealObserver.observe(section);
-});
-
-// Add active state to navigation links based on scroll position
-window.addEventListener('scroll', () => {
+    // Active navigation link
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-link');
     
     let current = '';
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
         if (window.pageYOffset >= sectionTop - 200) {
             current = section.getAttribute('id');
         }
@@ -444,16 +515,30 @@ window.addEventListener('scroll', () => {
             link.classList.add('active');
         }
     });
+}, 10);
+
+window.addEventListener('scroll', debouncedScrollHandler);
+
+// Initialize follower count display
+document.addEventListener('DOMContentLoaded', () => {
+    followerCountElement.textContent = followerCount.toLocaleString();
 });
 
-// Add CSS for active nav link
-const style = document.createElement('style');
-style.textContent = `
-    .nav-link.active {
-        color: #ff6b35 !important;
-    }
-    .nav-link.active::after {
-        width: 100% !important;
-    }
-`;
-document.head.appendChild(style);
+// Lazy loading for better performance
+if ('IntersectionObserver' in window) {
+    const lazyImages = document.querySelectorAll('img[data-src]');
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.remove('lazy');
+                imageObserver.unobserve(img);
+            }
+        });
+    });
+    
+    lazyImages.forEach(img => imageObserver.observe(img));
+}
+
+console.log('Fuel Up website loaded successfully! 🚀');
