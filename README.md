@@ -13,7 +13,7 @@ Welcome to the official repository of **Fuel Up with Mr. Archak**, a creator-led
 To help students escape dopamine addiction, comfort zones, and useless college lectures — and start building skills, content, and confidence.
 
 ## 🌐 Live Website
-👉 [Click here to view site](https://VishwanathArchakMR.github.io/fuelup-with-Mr.Archak)
+👉 [Click here to view site](https://VishwanathArchakMR.github.io/fuelup-with-Mr.Archak/)
 
 ---
 
