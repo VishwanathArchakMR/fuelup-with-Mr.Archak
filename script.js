@@ -250,7 +250,7 @@ function animateCounterUpdate(element, from, to) {
             element.textContent = Math.floor(current).toLocaleString();
         }
     }, duration / steps);
-});
+}
 
 // Submit follower email to backend
 async function submitFollowerEmail(email) {
@@ -309,9 +309,6 @@ contactForm.addEventListener('submit', async function(e) {
     const originalText = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
     submitBtn.disabled = true;
-    
-    // Save contact data to file
-    saveContactToFile(name, email, message);
     
     try {
         const response = await fetch('https://formsubmit.co/ajax/fuelupwithmrarchak05@gmail.com', {
@@ -660,7 +657,7 @@ window.addEventListener('scroll', debouncedScrollHandler);
 
 // Initialize follower count display
 document.addEventListener('DOMContentLoaded', () => {
-    loadStoredData();
+    followerCountElement.textContent = followerCount.toLocaleString();
 });
 
 // Lazy loading for better performance
