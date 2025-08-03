@@ -1,5 +1,75 @@
 // Global variables
-let followerCount = 5000;
+let followerCount = 50;
+let followedEmails = new Set();
+
+// Load data from localStorage on page load
+function loadStoredData() {
+    const storedCount = localStorage.getItem('tribeCount');
+    const storedEmails = localStorage.getItem('followedEmails');
+    
+    if (storedCount) {
+        followerCount = parseInt(storedCount);
+    }
+    
+    if (storedEmails) {
+        followedEmails = new Set(JSON.parse(storedEmails));
+    }
+    
+    // Update display
+    const followerCountElement = document.getElementById('followerCount');
+    if (followerCountElement) {
+        followerCountElement.textContent = followerCount.toLocaleString();
+    }
+}
+
+// Save data to localStorage
+function saveDataToStorage() {
+    localStorage.setItem('tribeCount', followerCount.toString());
+    localStorage.setItem('followedEmails', JSON.stringify([...followedEmails]));
+}
+
+// Save follower email to file (simulate with localStorage for demo)
+function saveFollowerToFile(email) {
+    const followers = JSON.parse(localStorage.getItem('followerEmails') || '[]');
+    const timestamp = new Date().toISOString();
+    
+    followers.push({
+        email: email,
+        timestamp: timestamp,
+        source: 'Follow Me Section'
+    });
+    
+    localStorage.setItem('followerEmails', JSON.stringify(followers));
+}
+
+// Save contact form data to file (simulate with localStorage for demo)
+function saveContactToFile(name, email, message) {
+    const contacts = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
+    const timestamp = new Date().toISOString();
+    
+    contacts.push({
+        name: name,
+        email: email,
+        message: message,
+        timestamp: timestamp,
+        source: 'Contact Form'
+    });
+    
+    localStorage.setItem('contactSubmissions', JSON.stringify(contacts));
+}
+
+// Validate email exists (basic validation + format check)
+async function validateEmailExists(email) {
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return false;
+    }
+    
+    // Additional validation could be added here
+    // For now, we'll accept any properly formatted email
+    return true;
+}
 
 // Mobile Navigation Toggle
 const navToggle = document.getElementById('nav-toggle');
@@ -53,8 +123,14 @@ verifyBtn.addEventListener('click', function() {
         return;
     }
     
-    if (!isValidEmail(email)) {
-        alert('Please enter a valid email address');
+    // Check if email is already a tribe member
+    if (followedEmails.has(email.toLowerCase())) {
+        alert('You are already a tribe member! 🎉');
+        verifyBtn.innerHTML = '<i class="fas fa-check"></i> Already Member';
+        verifyBtn.classList.add('verified');
+        followBtn.innerHTML = '<i class="fas fa-check"></i> Already Following';
+        followBtn.classList.add('disabled');
+        followBtn.disabled = true;
         return;
     }
     
@@ -62,16 +138,30 @@ verifyBtn.addEventListener('click', function() {
     verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
     verifyBtn.disabled = true;
     
-    setTimeout(() => {
-        verifyBtn.innerHTML = '<i class="fas fa-check"></i> Verified';
-        verifyBtn.classList.add('verified');
-        followBtn.classList.remove('disabled');
-        followBtn.disabled = false;
-        isEmailVerified = true;
+    // Validate email exists
+    validateEmailExists(email).then(isValid => {
+        if (!isValid) {
+            alert('Please enter a valid email address');
+            verifyBtn.innerHTML = '<i class="fas fa-shield-alt"></i> Verify Email';
+            verifyBtn.disabled = false;
+            return;
+        }
         
-        // Add glow effect to follow button
-        followBtn.style.animation = 'glow 1.5s ease-in-out infinite alternate';
-    }, 2000);
+        setTimeout(() => {
+            verifyBtn.innerHTML = '<i class="fas fa-check"></i> Verified';
+            verifyBtn.classList.add('verified');
+            followBtn.classList.remove('disabled');
+            followBtn.disabled = false;
+            isEmailVerified = true;
+            
+            // Add glow effect to follow button
+            followBtn.style.animation = 'glow 1.5s ease-in-out infinite alternate';
+        }, 1500);
+    }).catch(error => {
+        alert('Error validating email. Please try again.');
+        verifyBtn.innerHTML = '<i class="fas fa-shield-alt"></i> Verify Email';
+        verifyBtn.disabled = false;
+    });
 });
 
 // Follow form submission
@@ -85,15 +175,30 @@ followForm.addEventListener('submit', function(e) {
     
     const email = followEmail.value.trim();
     
+    // Double check if already a member
+    if (followedEmails.has(email.toLowerCase())) {
+        alert('You are already a tribe member! 🎉');
+        return;
+    }
+    
     // Show loading state
     followBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
     followBtn.disabled = true;
     
     // Submit to backend and update follower count
     submitFollowerEmail(email).then(() => {
+        // Add email to followed set
+        followedEmails.add(email.toLowerCase());
+        
         // Update follower count
         followerCount += 1;
-        followerCountElement.textContent = followerCount.toLocaleString();
+        
+        // Save follower data
+        saveFollowerToFile(email);
+        saveDataToStorage();
+        
+        // Update display in real-time
+        updateFollowerCountDisplay();
         
         // Hide form and show success message
         followForm.style.display = 'none';
@@ -114,6 +219,37 @@ followForm.addEventListener('submit', function(e) {
         followBtn.innerHTML = '<i class="fas fa-rocket"></i> Follow Me';
         followBtn.disabled = false;
     });
+});
+
+// Update follower count display
+function updateFollowerCountDisplay() {
+    const followerCountElement = document.getElementById('followerCount');
+    if (followerCountElement) {
+        // Animate the count update
+        const currentCount = parseInt(followerCountElement.textContent.replace(/\D/g, ''));
+        animateCounterUpdate(followerCountElement, currentCount, followerCount);
+    }
+}
+
+// Animate counter update
+function animateCounterUpdate(element, from, to) {
+    const duration = 1000;
+    const steps = 20;
+    const increment = (to - from) / steps;
+    let current = from;
+    let step = 0;
+    
+    const timer = setInterval(() => {
+        step++;
+        current += increment;
+        
+        if (step >= steps) {
+            element.textContent = to.toLocaleString();
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(current).toLocaleString();
+        }
+    }, duration / steps);
 });
 
 // Submit follower email to backend
@@ -173,6 +309,9 @@ contactForm.addEventListener('submit', async function(e) {
     const originalText = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
     submitBtn.disabled = true;
+    
+    // Save contact data to file
+    saveContactToFile(name, email, message);
     
     try {
         const response = await fetch('https://formsubmit.co/ajax/fuelupwithmrarchak05@gmail.com', {
@@ -521,7 +660,7 @@ window.addEventListener('scroll', debouncedScrollHandler);
 
 // Initialize follower count display
 document.addEventListener('DOMContentLoaded', () => {
-    followerCountElement.textContent = followerCount.toLocaleString();
+    loadStoredData();
 });
 
 // Lazy loading for better performance

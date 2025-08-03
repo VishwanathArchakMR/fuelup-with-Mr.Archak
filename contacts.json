@@ -1,0 +1,9 @@
+[
+  {
+    "name": "Example User",
+    "email": "example@email.com",
+    "message": "Hello, this is a test message.",
+    "timestamp": "2025-01-15T10:00:00.000Z",
+    "source": "Contact Form"
+  }
+]
