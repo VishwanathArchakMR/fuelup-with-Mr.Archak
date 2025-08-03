@@ -660,7 +660,7 @@ window.addEventListener('scroll', debouncedScrollHandler);
 
 // Initialize follower count display
 document.addEventListener('DOMContentLoaded', () => {
-    loadStoredData();
+    followerCountElement.textContent = followerCount.toLocaleString();
 });
 
 // Lazy loading for better performance
