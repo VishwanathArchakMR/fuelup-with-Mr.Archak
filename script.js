@@ -310,6 +310,9 @@ contactForm.addEventListener('submit', async function(e) {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
     submitBtn.disabled = true;
     
+    // Save contact data to file
+    saveContactToFile(name, email, message);
+    
     try {
         const response = await fetch('https://formsubmit.co/ajax/fuelupwithmrarchak05@gmail.com', {
             method: 'POST',
@@ -657,7 +660,7 @@ window.addEventListener('scroll', debouncedScrollHandler);
 
 // Initialize follower count display
 document.addEventListener('DOMContentLoaded', () => {
-    followerCountElement.textContent = followerCount.toLocaleString();
+    loadStoredData();
 });
 
 // Lazy loading for better performance
