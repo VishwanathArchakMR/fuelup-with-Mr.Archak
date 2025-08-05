@@ -39,15 +39,19 @@ async function initializeFiles() {
         console.error('Error initializing files:', error);
     }
 }
-
 // Email transporter setup
-const transporter = nodemailer.createTransporter({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER || 'your-email@gmail.com',
-        pass: process.env.EMAIL_PASS || 'your-app-password'
-    }
-});
+let transporter;
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    });
+} else {
+    console.warn('Email sending is disabled. Set EMAIL_USER and EMAIL_PASS environment variables to enable email notifications.');
+}
 
 // Get current tribe count
 app.get('/api/tribe-count', async (req, res) => {
@@ -110,35 +114,28 @@ app.post('/api/add-follower', async (req, res) => {
         await fs.writeJson(FOLLOWERS_FILE, followers);
         await fs.writeJson(TRIBE_COUNT_FILE, tribeData);
         
-        // Send notification email
+                // Send notification email
         try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER || 'noreply@fuelup.com',
-                to: 'fuelupwithmrarchak05@gmail.com',
-                subject: '🎉 New Tribe Member Joined!',
-                html: `
-                    <h2>New Tribe Member Alert!</h2>
-                    <p><strong>Email:</strong> ${email}</p>
-                    <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-                    <p><strong>Total Tribe Members:</strong> ${tribeData.count}</p>
-                    <p><strong>Source:</strong> Follow Me Section</p>
-                `
-            });
+            if (transporter) { // Add this check
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER || 'noreply@fuelup.com',
+                    to: 'fuelupwithmrarchak05@gmail.com',
+                    subject: '🎉 New Tribe Member Joined!',
+                    html: `
+                        <h2>New Tribe Member Alert!</h2>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+                        <p><strong>Total Tribe Members:</strong> ${tribeData.count}</p>
+                        <p><strong>Source:</strong> Follow Me Section</p>
+                    `
+                });
+            } else { // Add this else block
+                console.warn('Skipping new tribe member email notification: Email transporter not configured.');
+            }
         } catch (emailError) {
             console.error('Email sending failed:', emailError);
         }
-        
-        res.json({ 
-            success: true, 
-            message: 'Successfully joined the tribe!',
-            count: tribeData.count 
-        });
-        
-    } catch (error) {
-        console.error('Error adding follower:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
+
 
 // Handle contact form submission
 app.post('/api/contact', async (req, res) => {
@@ -162,32 +159,29 @@ app.post('/api/contact', async (req, res) => {
         // Save to file
         await fs.writeJson(CONTACTS_FILE, contacts);
         
-        // Send email notification
+                // Send email notification
         try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER || 'noreply@fuelup.com',
-                to: 'fuelupwithmrarchak05@gmail.com',
-                subject: '📧 New Contact Form Submission',
-                html: `
-                    <h2>New Contact Form Submission</h2>
-                    <p><strong>Name:</strong> ${name}</p>
-                    <p><strong>Email:</strong> ${email}</p>
-                    <p><strong>Message:</strong></p>
-                    <p>${message}</p>
-                    <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-                `
-            });
+            if (transporter) { // Add this check
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER || 'noreply@fuelup.com',
+                    to: 'fuelupwithmrarchak05@gmail.com',
+                    subject: '📧 New Contact Form Submission',
+                    html: `
+                        <h2>New Contact Form Submission</h2>
+                        <p><strong>Name:</strong> ${name}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Message:</strong></p>
+                        <p>${message}</p>
+                        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+                    `
+                });
+            } else { // Add this else block
+                console.warn('Skipping contact form email notification: Email transporter not configured.');
+            }
         } catch (emailError) {
             console.error('Email sending failed:', emailError);
         }
-        
-        res.json({ success: true, message: 'Message sent successfully!' });
-        
-    } catch (error) {
-        console.error('Error handling contact:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
+
 
 // Start server
 app.listen(PORT, async () => {
