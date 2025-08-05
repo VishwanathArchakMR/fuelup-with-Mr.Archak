@@ -63,6 +63,49 @@ app.get('/api/tribe-count', async (req, res) => {
         res.json({ count: 50 }); // Default fallback
     }
 });
+// Handle follow and contact form submission
+app.post('/api/follow', async (req, res) => {
+    const { name, email, message } = req.body;
+
+    if (!name || !email || !message) {
+        return res.status(400).json({ success: false, error: 'All fields are required.' });
+    }
+
+    try {
+        // Update tribe count
+        const tribeData = await fs.readJson(TRIBE_COUNT_FILE);
+        tribeData.count += 1;
+        tribeData.lastUpdated = new Date().toISOString();
+        await fs.writeJson(TRIBE_COUNT_FILE, tribeData);
+
+        // Save follower
+        const followers = await fs.readJson(FOLLOWERS_FILE);
+        followers.push({ name, email, followedAt: new Date().toISOString() });
+        await fs.writeJson(FOLLOWERS_FILE, followers);
+
+        // Save message
+        const contacts = await fs.readJson(CONTACTS_FILE);
+        contacts.push({ name, email, message, sentAt: new Date().toISOString() });
+        await fs.writeJson(CONTACTS_FILE, contacts);
+
+        // Send email
+        if (transporter) {
+            await transporter.sendMail({
+                from: `"Fuel Up Website" <${process.env.EMAIL_USER}>`,
+                to: "fuelupwithmrarchak05@gmail.com",
+                subject: "New Follower & Message",
+                text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+            });
+        }
+
+        res.json({ success: true, count: tribeData.count });
+
+    } catch (error) {
+        console.error('Error in /api/follow:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
 
 // Check if email is already a follower
 app.post('/api/check-follower', async (req, res) => {
